@@ -28,3 +28,9 @@ function assertIsNone($result)
 		throw (New-Object Exception($msg))
 	}
 }
+
+function assertFail()
+{
+	$msg = "The test is set as failed"
+	throw (New-Object Exception($msg))
+}

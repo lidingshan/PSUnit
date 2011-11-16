@@ -1,7 +1,8 @@
-﻿Import-Module c:\workspace\PSUnit\asserts.psm1
-Import-Module c:\workspace\PSUnit\PSUnit.psm1
+﻿Import-Module $global:PSUnit_Home"\PSUnit.psm1"
+Import-Module $global:PSUnit_Home"\asserts.psm1"
 
 $global:setupIsCalled = $false
+$global:testCaseIsCalled = $false
 
 function setup()
 {
@@ -19,7 +20,9 @@ function test_get_testing_path()
 
 function test_get_all_testscript_file()
 {
-	[int]$expected = 2
+	$testPath = PSUnit_GetTestRoot
+	$files = dir $testPath
+	[int]$expected = $files.length
 	
 	[array]$scriptFiles = PSUnit_GetTestScripts	
 	[int]$actual = $scriptFiles.length
@@ -48,4 +51,49 @@ function test_no_setup()
 	$actual = PSUnit_GetSetupMethod($scriptFullPath)
 	
 	assertIsNone $actual
+}
+
+function test_get_testcases()
+{
+	[int]$expected = 2
+	
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	[array]$testCases = PSUnit_GetTestCases($scriptFullPath)
+	$actual = $testCases.length
+	
+	assertAreEqual $expected $actual
+	assertAreEqual "test_case1" $testCases[0]
+}
+
+function test_no_testcase()
+{
+	$scriptFullPath = ".\testdata\test_script3.ps1"
+	[array]$testCases = PSUnit_GetTestCases($scriptFullPath)
+	
+	assertIsNone $testCases
+}
+
+function test_get_one_testcase()
+{
+	$expected = ".\testdata\test_script1.ps1;test_case1"
+	$scriptPath = ".\testdata\test_script1.ps1"
+	$testCase = "test_case1"
+	$actual = PSUnit_GetOneTestCase($scriptPath, $testCase)
+	
+	assertAreEqual $expected $actual
+}
+
+function test_run_one_testcase()
+{
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	$testCase = "test_case1"
+	
+	PSUnit_RunOneCase $scriptFullPath $testCase
+	
+	assertIsTrue $global:testCaseIsCalled
+}
+
+function test_WriteFail()
+{
+	assertFail
 }
