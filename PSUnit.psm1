@@ -1,6 +1,5 @@
 ﻿
 [string]$script:PSUnit_Root = ""
-$script:PSUnit_TestCases = @{}
 
 function PSUnit_SetTestRoot($testRoot) 
 { 
@@ -65,22 +64,24 @@ function PSUnit_GetTestCases($scriptFullPath)
 	[int]$index = 0
 	foreach($delcaration in $declarations)
 	{
-		$testCases[$index] = getMethodName($delcaration)
+		$testCases[$index] = getMethodName $delcaration 
 		$index = $index + 1
 	}
 	
 	return $testCases
 }
 
-function PSUnit_GetOneTestCase($scriptPath, $testCase)
+function PSUnit_GetOneTestCase($scriptFullPath, $testCaseName)
 {
-	$testCaseScriptBlock = ". " + $scriptFullPath + "; " + $testCase
+#    Write-Host "5 - test case is $testCaseName"
+    
+	$testCaseScriptBlock = ". " + $scriptFullPath + ";" + $testCaseName
 	return $testCaseScriptBlock
 }
 
 function PSUnit_RunOneCase($scriptFullPath, $testCaseName)
 {
-	$testCaseScriptBlock = PSUnit_GetOneTestCase($scriptFullPath, $testCaseName)
+	$testCaseScriptBlock = PSUnit_GetOneTestCase $scriptFullPath $testCaseName 
 	Invoke-Expression $testCaseScriptBlock
 }
 
@@ -116,8 +117,8 @@ function PSUnit_ExcecuteOneScriptFile($script)
 {
 	$scriptFullPath = $script.FullName
 	
-	$setupMethod = PSUnit_GetSetupMethod($scriptFullPath)
-	$testCases = PSUnit_GetTestCases($scriptFullPath)
+	$setupMethod = PSUnit_GetSetupMethod $scriptFullPath
+	$testCases = PSUnit_GetTestCases $scriptFullPath
 	
 	foreach($testCase in $testCases)
 	{
@@ -125,7 +126,7 @@ function PSUnit_ExcecuteOneScriptFile($script)
 		
 		try
 		{
-			PSUnit_RunSetup $scriptFullPath $setupMethod				
+			PSUnit_RunSetup $scriptFullPath $setupMethod
 			PSUnit_RunOneCase $scriptFullPath $testCase
 			
 			PSUnit_WritePass $currentCase
