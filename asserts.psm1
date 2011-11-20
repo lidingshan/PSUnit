@@ -1,4 +1,5 @@
-﻿function assertAreEqual($expected, $actual)
+﻿
+function assertAreEqual($expected, $actual)
 {
 	if ($expected -eq $actual)
 	{
@@ -33,4 +34,30 @@ function assertFail()
 {
 	$msg = "The test is set as failed"
 	throw (New-Object Exception($msg))
+}
+
+function assertAreGreater($first, $second)
+{
+    if ($first -gt $second)
+    {
+        return
+    }
+    else
+    {
+        $msg = "$first is not greater than $second"
+        throw (New-Object Exception($msg))
+    }
+}
+
+function assertAreLess($first, $second)
+{
+    if ($first -le $second)
+    {
+        return
+    }
+    else
+    {
+        $msg = "$first is not less than $second"
+        throw (New-Object Exception($msg))
+    }
 }

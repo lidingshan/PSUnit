@@ -75,10 +75,10 @@ function test_no_testcase()
 
 function test_get_one_testcase()
 {
-	$expected = ".\testdata\test_script1.ps1;test_case1"
+	$expected = ". .\testdata\test_script1.ps1;test_case1"
 	$scriptPath = ".\testdata\test_script1.ps1"
 	$testCase = "test_case1"
-	$actual = PSUnit_GetOneTestCase($scriptPath, $testCase)
+	$actual = PSUnit_GetOneTestCase $scriptPath $testCase
 	
 	assertAreEqual $expected $actual
 }
@@ -93,7 +93,65 @@ function test_run_one_testcase()
 	assertIsTrue $global:testCaseIsCalled
 }
 
-function test_WriteFail()
+function test_expect_fail()
 {
-	assertFail
+	$expected = "The test is set as failed"
+	try
+	{
+		assertFail
+	}
+	catch [Exception]
+	{
+		assertAreEqual $expected $_.Exception.Message
+	}
+}
+
+function test_expect_greater()
+{
+	$first = 3
+	$second = 2
+	assertAreGreater $first $second
+}
+
+function test_assert_greater_fail_throw_exception()
+{
+    $first = 3
+    $second = 4
+    
+    $expected = "$first is not greater than $second"
+    
+    try
+    {
+        assertAreGreater $first $second
+        assertFail
+    }
+    catch [Exception]
+    {
+        assertAreEqual $expected $_.Exception.Message
+    }
+}
+
+function test_assert_less()
+{
+    $first = 3
+    $second = 4
+    assertAreLess $first $second
+}
+
+function test_assert_less_fail_throw_exception()
+{
+    $first = 4
+    $second = 3
+    
+    $expected = "$first is not less than $second"
+    
+    try
+    {
+        assertAreLess $first $second
+        assertFail
+    }
+    catch [Exception]
+    {
+        assertAreEqual $expected $_.Exception.Message
+    }
 }
