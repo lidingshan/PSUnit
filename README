@@ -1,0 +1,54 @@
+***********************************************************
+What is PSUnit
+***********************************************************
+
+This is a simple unit test frameworkk for powershell script. Right now, it support the following assert
+	1. assertAreEqual
+	2. assertGreater
+	3. assertLess
+	4. assertFail
+	5. assertIsNone
+
+***********************************************************
+How to run the test script?
+***********************************************************
+
+Before running the test, please set up a environment variable first called "PSUNIT_HOME" what value is the folder of PSUnit.
+
+Then you may run the test script like bellow
+1) Start a command terminal
+2) Go to PSUnit home folder
+3) Execute the BAT file under the home folder called run_test.bat with one input argument what is the folder name include the test scripts you want to execute
+4) Or you may run PowerScript directly, like
+   PowerShell .\testRunner.ps1 [the folder name include test scripts]
+
+PSUnit will find each PowerScript file (.ps1) under the folder provided recurvsely which file name match the pattern of "test*.ps1". And then it will execute all of the functions that match the patter of "function test*" in each script file.
+
+***********************************************************
+Example
+***********************************************************
+
+If your test scripte files are under the folder of C:\test, then you can run your tests like
+	run_test.bat C:\test
+Or
+	PowerShell .\testRunner.ps1 c:\test
+
+2. Tests examples
+	File name: test_calculation.ps1
+and in the script file to add functions to execute the tests, like
+	
+	Import-Module $env:PSUNIT_HOME"\asserts.psm1"
+
+	function test_add()
+	{
+		$expected = 5
+		$actual = 3 + 2
+		assertAreEqual $expected $actual
+	}
+
+***********************************************************
+Knowing Issues
+***********************************************************
+
+Right now, PSUnit cannot handle the comments in test scripts. So even if one function has been commented, like "# function test_add()", PSUnit will still run this test.
+	

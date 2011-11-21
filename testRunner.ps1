@@ -1,4 +1,4 @@
-﻿$global:PSUnit_Home = Get-Location
+﻿$global:PSUnit_Home = $env:PSUNIT_HOME
 
 Import-Module $global:PSUnit_Home"\PSUnit.psm1"
 
