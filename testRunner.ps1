@@ -6,17 +6,7 @@ function Run($path)
 {
 	PSUnit_SetTestRoot $path
 	$scriptFiles = PSUnit_GetTestScripts
-	
-	if (!$scriptFiles)
-	{
-		Write-Host "No tests executed"
-		return
-	}
-
-	foreach($script in $scriptFiles)
-	{
-		PSUnit_ExcecuteOneScriptFile $script
-	}
+	PSUnit_Run
 }
 
 Run $args[0]

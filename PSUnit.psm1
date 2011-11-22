@@ -1,5 +1,7 @@
 ﻿
 [string]$script:PSUnit_Root = ""
+[int]$script:PSUnit_SuccessCount = 0
+[int]$script:PSUnit_FailedCount = 0
 
 function PSUnit_SetTestRoot($testRoot) 
 { 
@@ -98,19 +100,12 @@ function PSUnit_RunSetup($scriptFullPath, $setupMethod)
 
 function PSUnit_WritePass($testCase)
 {
-	$originalColor = $Host.UI.RawUI.ForegroundColor
-	$Host.UI.RawUI.ForegroundColor = "Green"
-	Write-Host "PASS" $testCase
-	$Host.UI.RawUI.ForegroundColor = $originalColor
-	
+	WriteWithSuccessColor "PASS $testCase"
 }
 
 function PSUnit_WriteFail($testCase, $errorMsg)
 {
-	$originalColor = $Host.UI.RawUI.ForegroundColor
-	$Host.UI.RawUI.ForegroundColor = "Red"
-	Write-Host "FAIL" $testCase "`n`tError Message: " $errorMsg
-	$Host.UI.RawUI.ForegroundColor = $originalColor
+	WriteWithFailColor "FAIL $testCase `n`tError Message: $errorMsg"
 }
 
 function PSUnit_ExcecuteOneScriptFile($script)
@@ -119,6 +114,11 @@ function PSUnit_ExcecuteOneScriptFile($script)
 	
 	$setupMethod = PSUnit_GetSetupMethod $scriptFullPath
 	$testCases = PSUnit_GetTestCases $scriptFullPath
+	
+	if ($testCases -eq $null)
+	{
+		return
+	}
 	
 	foreach($testCase in $testCases)
 	{
@@ -130,11 +130,79 @@ function PSUnit_ExcecuteOneScriptFile($script)
 			PSUnit_RunOneCase $scriptFullPath $testCase
 			
 			PSUnit_WritePass $currentCase
+			$script:PSUnit_SuccessCount = $script:PSUnit_SuccessCount + 1
 		}
 		catch [Exception]
 		{
 			PSUnit_WriteFail $currentCase $_.Exception.Message
+			$script:PSUnit_FailedCount = $script:PSUnit_FailedCount + 1
 		}
 	}
 }
 
+function PSUnit_Run()
+{
+	$scriptFiles = PSUnit_GetTestScripts
+	
+	if (!$scriptFiles)
+	{
+		Write-Host "No tests executed"
+		return
+	}
+
+	$script:PSUnit_SuccessCount = 0
+	$script:PSUnit_FailedCount = 0
+	
+	Write-Host "==================================================================="
+	Write-Host "Start testing $script:PSUnit_Root..."
+	Write-Host "==================================================================="
+	
+	foreach($script in $scriptFiles)
+	{
+		PSUnit_ExcecuteOneScriptFile $script
+	}
+	
+	Write-Host "==================================================================="
+	Write-Host -NoNewline "Test completed: "
+	WriteWithSuccessColor "Succeed - $script:PSUnit_SuccessCount, " $false
+	WriteWithFailColor "Failed - $script:PSUnit_FailedCount" $false
+	Write-Host
+	Write-Host "==================================================================="
+}
+
+function WriteWithSuccessColor($msg, $isNewLine=$true)
+{
+	WriteWithSpecificColor $msg "Green" $isNewLine
+}
+
+function WriteWithFailColor($msg, $isNewLine=$true)
+{
+	WriteWithSpecificColor $msg "Red" $isNewLine
+}
+
+function WriteWithSpecificColor($msg, $color, $isNewLine)
+{
+	$originalColor = $Host.UI.RawUI.ForegroundColor
+	$Host.UI.RawUI.ForegroundColor = $color
+	
+	if ($true -eq $isNewLine)
+	{
+		Write-Host $msg
+	}
+	else
+	{
+		Write-Host -NoNewline $msg
+	}
+	
+	$Host.UI.RawUI.ForegroundColor = $originalColor
+}
+
+function PSUnit_GetSucceedCount()
+{
+	return $script:PSUnit_SuccessCount
+}
+
+function PSUnit_GetFailedCount()
+{
+	return $script:PSUnit_FailedCount
+}

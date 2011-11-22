@@ -61,3 +61,16 @@ function assertAreLess($first, $second)
         throw (New-Object Exception($msg))
     }
 }
+
+function assertIsNotNull($object)
+{
+	if ($object -ne $null)
+	{
+		return
+	}
+	else
+	{
+        $msg = "The object is expected to be NOT NULL but it is"
+        throw (New-Object Exception($msg))
+	}
+}

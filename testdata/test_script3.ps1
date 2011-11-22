@@ -5,13 +5,13 @@ function script3_case1()
 	$expected = 3
 	$actual = 1 + 2
 	
-	assertAreEqual $expected, $actual
+	assertAreEqual $expected $actual
 }
 
 function script3_case2()
 {
-	$expected = 3
-	$actual = 1 + 1
+	$expected = 6
+	$actual = 6
 	
-	assertAreEqual $expected, $actual
+	assertAreEqual $expected $actual
 }
