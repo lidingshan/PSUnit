@@ -153,21 +153,14 @@ function PSUnit_Run()
 	$script:PSUnit_SuccessCount = 0
 	$script:PSUnit_FailedCount = 0
 	
-	Write-Host "==================================================================="
-	Write-Host "Start testing $script:PSUnit_Root..."
-	Write-Host "==================================================================="
+	PSUnit_WriteOutputHead
 	
 	foreach($script in $scriptFiles)
 	{
 		PSUnit_ExcecuteOneScriptFile $script
 	}
 	
-	Write-Host "==================================================================="
-	Write-Host -NoNewline "Test completed: "
-	WriteWithSuccessColor "Succeed - $script:PSUnit_SuccessCount, " $false
-	WriteWithFailColor "Failed - $script:PSUnit_FailedCount" $false
-	Write-Host
-	Write-Host "==================================================================="
+	PSUnit_WriteOutputFoot 
 }
 
 function WriteWithSuccessColor($msg, $isNewLine=$true)
@@ -205,4 +198,49 @@ function PSUnit_GetSucceedCount()
 function PSUnit_GetFailedCount()
 {
 	return $script:PSUnit_FailedCount
+}
+
+function PSUnit_WriteOutputHead()
+{
+	Write-Host "==================================================================="
+	Write-Host "Start testing $script:PSUnit_Root..."
+	Write-Host "==================================================================="
+}
+
+function PSUnit_WriteOutputFoot()
+{
+	$totalTestNumber = $script:PSUnit_SuccessCount + $script:PSUnit_FailedCount
+	
+	Write-Host "==================================================================="
+	Write-Host -NoNewline "Total $totalTestNumber tests completed "
+	
+	if ($script:PSUnit_FailedCount -gt 0)
+	{
+		PSUnit_WriteFailedInfo
+	}
+	else
+	{
+		PSUnit_WriteSuccessInfo
+	}
+	
+	Write-Host
+	Write-Host "==================================================================="
+}
+
+function PSUnit_WriteSuccessInfo()
+{
+	$isNewLine = $false
+	
+	WriteWithSuccessColor "Successfully. " $isNewLine
+	WriteWithSuccessColor "Succeed - $script:PSUnit_SuccessCount, " $isNewLine
+	WriteWithSuccessColor "Failed - $script:PSUnit_FailedCount" $isNewLine
+}
+
+function PSUnit_WriteFailedInfo()
+{
+	$isNewLine = $false
+
+	WriteWithFailColor "Failed. " $isNewLine
+	WriteWithSuccessColor "Succeed - $script:PSUnit_SuccessCount, " $isNewLine
+	WriteWithFailColor "Failed - $script:PSUnit_FailedCount" $isNewLine
 }

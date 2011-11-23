@@ -175,7 +175,7 @@ function test_assert_isnot_null_fail_throw_exception()
 	}
 }
 
-function test_get_final_pass_count()
+function ignor_test_get_final_pass_count()
 {
 	$expected = 4
 	
@@ -184,7 +184,7 @@ function test_get_final_pass_count()
 	assertAreEqual $expected $actual
 }
 
-function test_get_final_fail_count()
+function ignor_test_get_final_fail_count()
 {
 	$expected = 1
 	
