@@ -8,6 +8,7 @@ This is a simple unit test frameworkk for powershell script. Right now, it suppo
 	3. assertLess
 	4. assertFail
 	5. assertIsNone
+	6. assertIsNotNull
 
 ***********************************************************
 How to run the test script?
