@@ -174,21 +174,3 @@ function test_assert_isnot_null_fail_throw_exception()
         assertAreEqual $expected $_.Exception.Message
 	}
 }
-
-function test_get_final_pass_count()
-{
-	$expected = 4
-	
-	PSUnit_Run
-	$actual = PSUnit_GetSucceedCount
-	assertAreEqual $expected $actual
-}
-
-function test_get_final_fail_count()
-{
-	$expected = 1
-	
-	PSUnit_Run
-	$actual = PSUnit_GetFailedCount
-	assertAreEqual $expected $actual
-}
