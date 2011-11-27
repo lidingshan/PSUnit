@@ -20,6 +20,7 @@ function PSUnit_GetTestRoot()
 	return $script:PSUnit_Root
 }
 
+
 function PSUnit_GetTestScripts()
 {
 	$directories = Get-ChildItem $script:PSUnit_Root -Recurse
@@ -39,6 +40,19 @@ function PSUnit_GetSetupMethod($scriptFullPath)
 	$setupMethod = getMethodName $setupFunction
 	
 	return $setupMethod
+}
+
+function PSUnit_GetTearDownMethod($scriptFullPath)
+{
+	$teardownFunction = Get-Content $scriptFullPath | where {$input -like "function teardown*"}
+	if ($teardownFunction -eq $null)
+	{
+		return $null
+	}
+	
+	$teardownMethod = getMethodName $teardownFunction
+	
+	return $teardownMethod
 }
 
 function getMethodName($delcaration)
@@ -73,29 +87,30 @@ function PSUnit_GetTestCases($scriptFullPath)
 	return $testCases
 }
 
-function PSUnit_GetOneTestCase($scriptFullPath, $testCaseName)
-{
-#    Write-Host "5 - test case is $testCaseName"
-    
-	$testCaseScriptBlock = ". " + $scriptFullPath + ";" + $testCaseName
-	return $testCaseScriptBlock
-}
-
 function PSUnit_RunOneCase($scriptFullPath, $testCaseName)
 {
-	$testCaseScriptBlock = PSUnit_GetOneTestCase $scriptFullPath $testCaseName 
-	Invoke-Expression $testCaseScriptBlock
+	ExecuteFunction $scriptFullPath $testCaseName
 }
 
 function PSUnit_RunSetup($scriptFullPath, $setupMethod)
 {
-	if($setupMethod -eq $null)
+	ExecuteFunction $scriptFullPath $setupMethod
+}
+
+function PSUnit_RunTearDown($scriptFullPath, $teardownMethod)
+{
+	ExecuteFunction $scriptFullPath $teardownMethod
+}
+
+function ExecuteFunction($scriptFullPath, $methodName)
+{
+	if($methodName -eq $null)
 	{
 		return
 	}
 	
-	$setupScriptBlock = ". " + $scriptFullPath + "; " + $setupMethod
-	Invoke-Expression $setupScriptBlock
+	$scriptBlock = ". " + $scriptFullPath + "; " + $methodName
+	Invoke-Expression $scriptBlock
 }
 
 function PSUnit_WritePass($testCase)
@@ -114,6 +129,7 @@ function PSUnit_ExcecuteOneScriptFile($script)
 	
 	$setupMethod = PSUnit_GetSetupMethod $scriptFullPath
 	$testCases = PSUnit_GetTestCases $scriptFullPath
+	$teardownMethod = PSUnit_GetTearDownMethod $scriptFullPath
 	
 	if ($testCases -eq $null)
 	{

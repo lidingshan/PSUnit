@@ -2,6 +2,11 @@
 {
 }
 
+function teardown()
+{
+	$global:teardownIsCalled = $true
+}
+
 function test_case1()
 {
 	$global:testCaseIsCalled = $true

@@ -3,6 +3,7 @@ Import-Module $global:PSUnit_Home"\asserts.psm1"
 
 $global:setupIsCalled = $false
 $global:testCaseIsCalled = $false
+$global:teardownIsCalled = $false
 
 function setup()
 {
@@ -71,16 +72,6 @@ function test_no_testcase()
 	[array]$testCases = PSUnit_GetTestCases($scriptFullPath)
 	
 	assertIsNone $testCases
-}
-
-function test_get_one_testcase()
-{
-	$expected = ". .\testdata\test_script1.ps1;test_case1"
-	$scriptPath = ".\testdata\test_script1.ps1"
-	$testCase = "test_case1"
-	$actual = PSUnit_GetOneTestCase $scriptPath $testCase
-	
-	assertAreEqual $expected $actual
 }
 
 function test_run_one_testcase()
@@ -173,4 +164,29 @@ function test_assert_isnot_null_fail_throw_exception()
 	{
         assertAreEqual $expected $_.Exception.Message
 	}
+}
+
+function test_get_teardown_method()
+{
+	$expected = "teardown"
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	
+	$actual = PSUnit_GetTearDownMethod($scriptFullPath)
+	
+	assertAreEqual $expected $actual
+}
+
+function test_no_teardown()
+{
+	$scriptFullPath = ".\testdata\test_script2.ps1"	
+	$actual = PSUnit_GetTearDownMethod($scriptFullPath)
+	
+	assertIsNone $actual
+}
+
+function test_teardown_iscalled()
+{
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	PSUnit_RunTearDown $scriptFullPath "teardown"
+	assertIsTrue $global:teardownIsCalled
 }
