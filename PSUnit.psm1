@@ -153,6 +153,8 @@ function PSUnit_ExcecuteOneScriptFile($script)
 			PSUnit_WriteFail $currentCase $_.Exception.Message
 			$script:PSUnit_FailedCount = $script:PSUnit_FailedCount + 1
 		}
+		
+		PSUnit_RunTearDown $scriptFullPath $teardownMethod 
 	}
 }
 
