@@ -2,13 +2,17 @@
 What is PSUnit
 ***********************************************************
 
-This is a simple unit test frameworkk for powershell script. Right now, it support the following assert
+This is a simple unit test frameworkk for powershell script. Right now, it support the following assert and setup/teardown
 	1. assertAreEqual
 	2. assertGreater
 	3. assertLess
 	4. assertFail
 	5. assertIsNone
 	6. assertIsNotNull
+	7. setup
+	8. teardown
+	9. fxiture_setup
+	10. fixture_teardown
 
 ***********************************************************
 How to run the test script?
@@ -24,6 +28,16 @@ Then you may run the test script like bellow
    PowerShell .\testRunner.ps1 [the folder name include test scripts]
 
 PSUnit will find each PowerScript file (.ps1) under the folder provided recurvsely which file name match the pattern of "test*.ps1". And then it will execute all of the functions that match the patter of "function test*" in each script file.
+
+For test fixture setup and teardown, you may implement the methods of 
+* fixture_setup
+* fixture_teardown
+
+The fixture_setup will be invoked before any test cases being executed and fixture_teardown will be invoked after all of the test cases being invoked. 
+So they can be used for a test fixture initialization and cleanup.
+
+The setup method will be invoked before each test case being executed and teardown method will be invoked after one test case being executed.
+So they can be used for one test case initialization and cleanup.
 
 ***********************************************************
 Example

@@ -31,40 +31,39 @@ function PSUnit_GetTestScripts()
 
 function PSUnit_GetSetupMethod($scriptFullPath)
 {
-	$setupFunction = Get-Content $scriptFullPath | where {$input -like "function setup*"}
-	if ($setupFunction -eq $null)
-	{
-		return $null
-	}
-	
-	$setupMethod = getMethodName $setupFunction
-	
-	return $setupMethod
+	$declaration = "function setup*"
+	return GetSepcificMethod $scriptFullPath $declaration
 }
 
 function PSUnit_GetTearDownMethod($scriptFullPath)
 {
-	$teardownFunction = Get-Content $scriptFullPath | where {$input -like "function teardown*"}
-	if ($teardownFunction -eq $null)
+	$declaration = "function teardown*"
+	return GetSepcificMethod $scriptFullPath $declaration
+}
+
+function GetSepcificMethod($scriptFullPath, $delcaration)
+{
+	$functionName = Get-Content $scriptFullPath | where {$input -like $delcaration}
+	if ($functionName -eq $null)
 	{
 		return $null
 	}
 	
-	$teardownMethod = getMethodName $teardownFunction
+	$method = GetMethodNameWithoutFunctionPrefix $functionName
 	
-	return $teardownMethod
+	return $method	
 }
 
-function getMethodName($delcaration)
+function GetMethodNameWithoutFunctionPrefix($functionName)
 {
-	$length = [int]$delcaration.length
+	$length = [int]$functionName.length
 	$prefixLength = [int]"function ".length
 	$suffixLength = [int]"()".length
 	
 	$subStringLength = $length - $prefixLength - $suffixLength
 	$startPosition = $prefixLength
 	
-	return $delcaration.SubString($startPosition, $subStringLength)
+	return $functionName.SubString($startPosition, $subStringLength)
 }
 
 function PSUnit_GetTestCases($scriptFullPath)
@@ -80,7 +79,7 @@ function PSUnit_GetTestCases($scriptFullPath)
 	[int]$index = 0
 	foreach($delcaration in $declarations)
 	{
-		$testCases[$index] = getMethodName $delcaration 
+		$testCases[$index] = GetMethodNameWithoutFunctionPrefix $delcaration 
 		$index = $index + 1
 	}
 	
@@ -127,6 +126,8 @@ function PSUnit_ExcecuteOneScriptFile($script)
 {
 	$scriptFullPath = $script.FullName
 	
+	$fixtureSetupMethod = PSUnit_GetFixtureSetupMethod $scriptFullPath
+	$fixtureTearDownMethod = PSUnit_GetFixtureTearDownMethod $scriptFullPath
 	$setupMethod = PSUnit_GetSetupMethod $scriptFullPath
 	$testCases = PSUnit_GetTestCases $scriptFullPath
 	$teardownMethod = PSUnit_GetTearDownMethod $scriptFullPath
@@ -135,6 +136,8 @@ function PSUnit_ExcecuteOneScriptFile($script)
 	{
 		return
 	}
+	
+	PSUnit_RunFxitureSetup $scriptFullPath $fixtureSetupMethod
 	
 	foreach($testCase in $testCases)
 	{
@@ -156,6 +159,8 @@ function PSUnit_ExcecuteOneScriptFile($script)
 		
 		PSUnit_RunTearDown $scriptFullPath $teardownMethod 
 	}
+	
+	PSUnit_RunFxitureTearDown $scriptFullPath $fixtureTearDownMethod
 }
 
 function PSUnit_Run()
@@ -261,4 +266,26 @@ function PSUnit_WriteFailedInfo()
 	WriteWithFailColor "Failed. " $isNewLine
 	WriteWithSuccessColor "Succeed - $script:PSUnit_SuccessCount, " $isNewLine
 	WriteWithFailColor "Failed - $script:PSUnit_FailedCount" $isNewLine
+}
+
+function PSUnit_GetFixtureSetupMethod($scriptFullPath)
+{
+	$declaration = "function fixture_setup*"
+	return GetSepcificMethod $scriptFullPath $declaration
+}
+
+function PSUnit_RunFxitureSetup($scriptFullPath, $fixtureSetupMethod)
+{
+	ExecuteFunction $scriptFullPath $fixtureSetupMethod
+}
+
+function PSUnit_GetFixtureTearDownMethod($scriptFullPath)
+{
+	$declaration = "function fixture_teardown*"
+	return GetSepcificMethod $scriptFullPath $declaration
+}
+
+function PSUnit_RunFxitureTearDown($scriptFullPath, $fixtureTearDownMethod)
+{
+	ExecuteFunction $scriptFullPath $fixtureTearDownMethod
 }

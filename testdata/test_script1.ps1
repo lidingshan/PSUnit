@@ -1,5 +1,16 @@
-﻿function setup()
+﻿function fixture_setup()
 {
+	$global:fixtureSetupIsCalled = $true
+}
+
+function fixture_teardown()
+{
+	$global:fixtureTearDownIsCalled = $true
+}
+
+function setup()
+{
+	$global:setupIsCalled = $true
 }
 
 function teardown()

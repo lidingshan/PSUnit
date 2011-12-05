@@ -4,11 +4,12 @@ Import-Module $global:PSUnit_Home"\asserts.psm1"
 $global:setupIsCalled = $false
 $global:testCaseIsCalled = $false
 $global:teardownIsCalled = $false
+$global:fixtureSetupIsCalled = $false
+$global:fixtureTearDownIsCalled = $false
 
 function setup()
 {
 	PSUnit_SetTestRoot ".\testdata\"
-	$global:setupIsCalled = $true
 }
 
 function test_get_testing_path()
@@ -33,7 +34,9 @@ function test_get_all_testscript_file()
 
 function test_setup_called()
 {
-	assertIsTrue $script:setupIsCalled
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	PSUnit_RunSetup $scriptFullPath "setup"
+	assertIsTrue $global:setupIsCalled
 }
 
 function test_get_setup_method()
@@ -189,4 +192,38 @@ function test_teardown_iscalled()
 	$scriptFullPath = ".\testdata\test_script1.ps1"
 	PSUnit_RunTearDown $scriptFullPath "teardown"
 	assertIsTrue $global:teardownIsCalled
+}
+
+function test_get_fixture_setup_method()
+{
+	$expected = "fixture_setup"
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	
+	$actual = PSUnit_GetFixtureSetupMethod $scriptFullPath
+	
+	assertAreEqual $expected $actual
+}
+
+function test_fixture_setup_iscalled()
+{
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	PSUnit_RunFxitureSetup $scriptFullPath "fixture_setup"
+	assertIsTrue $global:fixtureSetupIsCalled
+}
+
+function test_get_fixture_teardown_method()
+{
+	$expected = "fixture_teardown"
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	
+	$actual = PSUnit_GetFixtureTearDownMethod $scriptFullPath
+	
+	assertAreEqual $expected $actual
+}
+
+function test_fixture_teardown_iscalled()
+{
+	$scriptFullPath = ".\testdata\test_script1.ps1"
+	PSUnit_RunFxitureTearDown $scriptFullPath "fixture_teardown"
+	assertIsTrue $global:fixtureTearDownIsCalled
 }
